@@ -141,6 +141,15 @@ extension Ghostty {
             return path.isEmpty ? nil : ConfigPath(path: path, optional: v.optional)
         }
 
+        var launchLayout: String? {
+            guard let config = self.config else { return nil }
+            var v = ghostty_config_path_s()
+            let key = "launch-layout"
+            guard ghostty_config_get(config, &v, key, UInt(key.lengthOfBytes(using: .utf8))) else { return nil }
+            let path = String(cString: v.path)
+            return path.isEmpty ? nil : path
+        }
+
         var bellAudioVolume: Float {
             guard let config = self.config else { return 0.5 }
             var v: Double = 0.5

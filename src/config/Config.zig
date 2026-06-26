@@ -2650,6 +2650,40 @@ keybind: Keybinds = .{},
 /// window is ever created. Only implemented on Linux and macOS.
 @"initial-window": bool = true,
 
+/// Path to a JSON layout file to load at startup instead of opening a
+/// single empty initial window. The file describes an n-ary tree of rows and
+/// columns of panes, built into one window when the app launches. If the path
+/// is not absolute it is resolved relative to the config file directory (or the
+/// cwd when used as a CLI flag), and may be prefixed with `~/`. On any load
+/// error the app falls back to a normal initial window so launch never fails.
+///
+/// A node is a leaf pane `{ "run": <cmd>, "cwd": <dir>, "font_size": <pts> }`
+/// (all optional), a row stack `{ "rows": [ <node>, ... ] }` (top to bottom), or
+/// a column row `{ "cols": [ <node>, ... ] }` (left to right). Any node may carry
+/// a `"weight"` (default 1) giving its share of the parent's space; the loader
+/// computes Ghostty's internal split ratios from the weights. A leaf's
+/// "font_size" overrides the point size for that pane only.
+///
+/// This is honored only on the first launch when no other window exists
+/// (the same condition as `initial-window`); it does not apply on a
+/// state-restoration launch. macOS only.
+///
+/// Example file:
+///
+///     {
+///       "version": 1,
+///       "layout": {
+///         "rows": [
+///           { "weight": 68, "cols": [
+///             { "run": "btop", "font_size": 12 },
+///             { "run": "nvim ." }
+///           ] },
+///           { "weight": 32, "run": "git status" }
+///         ]
+///       }
+///     }
+@"launch-layout": ?Path = null,
+
 /// The duration that undo operations remain available. After this
 /// time, the operation will be removed from the undo stack and
 /// cannot be undone.

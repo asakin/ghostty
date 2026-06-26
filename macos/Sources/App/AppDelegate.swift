@@ -369,7 +369,12 @@ class AppDelegate: NSObject,
             //   - if we're restoring from persisted state
             if TerminalController.all.isEmpty && derivedConfig.initialWindow {
                 undoManager.disableUndoRegistration()
-                _ = TerminalController.newWindow(ghostty)
+                if let layoutPath = derivedConfig.launchLayout,
+                   LayoutLoader.load(ghostty, from: layoutPath) != nil {
+                    // Layout window created; nothing more to do.
+                } else {
+                    _ = TerminalController.newWindow(ghostty)
+                }
                 undoManager.enableUndoRegistration()
             }
         }
@@ -1026,17 +1031,20 @@ class AppDelegate: NSObject,
 
     private struct DerivedConfig {
         let initialWindow: Bool
+        let launchLayout: String?
         let shouldQuitAfterLastWindowClosed: Bool
         let quickTerminalPosition: QuickTerminalPosition
 
         init() {
             self.initialWindow = true
+            self.launchLayout = nil
             self.shouldQuitAfterLastWindowClosed = false
             self.quickTerminalPosition = .top
         }
 
         init(_ config: Ghostty.Config) {
             self.initialWindow = config.initialWindow
+            self.launchLayout = config.launchLayout
             self.shouldQuitAfterLastWindowClosed = config.shouldQuitAfterLastWindowClosed
             self.quickTerminalPosition = config.quickTerminalPosition
         }
